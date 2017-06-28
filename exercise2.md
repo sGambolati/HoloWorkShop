@@ -112,7 +112,9 @@ In this task, you will handle the Air Tap gesture and play an animation of your 
 
 1. Define a flag at class level, to allow determine if the user is holding the Gesture. Set to `false` when the user complete or cancel the Gesture (`OnHoldCompleted` and `OnHoldCanceled` method) and set to true in `OnHoldStarted`.
 
-1. Define a parameter for your component to allow to set the velocity of the movement from Unity Editor. You can set a default value (30 for example)/
+1. Define a parameter for your component to allow to set the velocity of the movement from Unity Editor. You can set a default value (30 for example).
+
+    > NOTE: All the public variables will be exposed as property to the Unity3D editor.
 
 1. In the `Update` method, check for the flag value and if `true` apply a rotation taking in count your parameter.
 
