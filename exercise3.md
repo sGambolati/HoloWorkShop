@@ -377,7 +377,7 @@ public class ScanManager : MonoBehaviour, IInputClickHandler
         SpatialUnderstandingDllTopology.TopologyResult[] _resultsTopology = new SpatialUnderstandingDllTopology.TopologyResult[QueryResultMaxCount];
 
         var minHeight = 0.001f;
-        var maxHeight = 0.02f;
+        var maxHeight = 1f;
         var minSpaceHeight = 0.02f;
 
         var resultsTopologyPtr = SpatialUnderstanding.Instance.UnderstandingDLL.PinObject(_resultsTopology);
@@ -386,6 +386,8 @@ public class ScanManager : MonoBehaviour, IInputClickHandler
         if (locationCount > 0)
         {
             var surfaceHologram = Instantiate(SurfacePrefab, _resultsTopology[0].position, Quaternion.LookRotation(_resultsTopology[0].normal, Vector3.up));
+            surfaceHologram.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
+
             var audioSource = surfaceHologram.gameObject.AddComponent<AudioSource>();
             audioSource.spatialize = true;
             audioSource.loop = true;
