@@ -353,3 +353,58 @@ public class ScanManager : MonoBehaviour, IInputClickHandler
 1. Generate your project and deploy to your Hololens Device or Emulator to try it out.
 
 ## Task 3: Add Spatial Sound
+
+1. In Unity3D, click on the **Edit** menu, following **Project Setting** and next **Audio**. Set the **Spatializer Plugin** to **MS HRTF Spatializer**.
+
+    ![](./images/exercise3-spatial-sound-configure-project-audio.png)
+
+1. In the _Project View_, create a new folder name `Sounds`. Import the [sound asset](./assets/Sounds/cat-meowing.mp3) to that folder (**Assets** menu, **Import New Asset**).
+
+1. In the _Project view_, select the audio file. In the _Inspector View_, check the **Force To Mono** option and then click _Apply_. When using Spatial Audio, you want your files to be in mono; Stereo files don't get processed properly and actually significantly muddy the illusion of spatialized sounds.
+
+    ![](./images/exercise3-spatial-sound-for-mono.png)
+
+1. Open the `ScanManager` in Visual Studio. Add a new public variable to set a prefab to instantiate where we found a little space of surface and another variable to store the _AudioClip_ to play. Create a new method to query for a little surface in your room and place the **surface prefab**. Once you have the instance of the Prefab, you can attach to it an AudioSource component to play the audio.
+
+    ``` csharp
+    public Transform SurfacePrefab;
+    public AudioClip SoundToPlay;
+
+    ...
+
+    private void InstantiateObjectOnSirface()
+    {
+        SpatialUnderstandingDllTopology.TopologyResult[] _resultsTopology = new SpatialUnderstandingDllTopology.TopologyResult[QueryResultMaxCount];
+
+        var minHeight = 0.001f;
+        var maxHeight = 0.02f;
+        var minSpaceHeight = 0.02f;
+
+        var resultsTopologyPtr = SpatialUnderstanding.Instance.UnderstandingDLL.PinObject(_resultsTopology);
+        var locationCount = SpatialUnderstandingDllTopology.QueryTopology_FindPositionsSittable(minHeight, maxHeight, minSpaceHeight, _resultsTopology.Length, resultsTopologyPtr);
+
+        if (locationCount > 0)
+        {
+            var surfaceHologram = Instantiate(SurfacePrefab, _resultsTopology[0].position, Quaternion.LookRotation(_resultsTopology[0].normal, Vector3.up));
+            var audioSource = surfaceHologram.gameObject.AddComponent<AudioSource>();
+            audioSource.spatialize = true;
+            audioSource.loop = true;
+            audioSource.spatialBlend = 1;
+            audioSource.maxDistance = 5;
+            audioSource.clip = this.SoundToPlay;
+            audioSource.Play();
+
+            this.InstructionTextMesh.text = "Placed the hologram";
+        }
+        else
+        {
+            this.InstructionTextMesh.text = "I can't found the enough space to place the hologram.";
+        }
+    }
+    ```
+
+    > NOTE: Remember to call this method from the `ScanStateChanged` method.
+
+1. Back to Unity Editor. Import [this](https://www.assetstore.unity3d.com/en/#!/content/66083) little cat asset to place in a surface of your room. Locate the **Cat Lite** prefab in then _Lowpoly Toon Cat Lite\Model_ folder. And Drag it to the **Surface Prefab** property in the **Scan Manager** component attached to the **MappingOrchestrator**. Also, drag the **cat-meowing.mp3** to the **Sound To Play** property.
+
+1. To be able to test your change, you will need to deploy to your _Hololens Device_ or _Emulator_.
